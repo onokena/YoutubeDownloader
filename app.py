@@ -3,6 +3,14 @@ from tkinter import ttk
 from pytube import YouTube
 import os
 
+resolution_labels = {
+    "2160p": "4k",
+    "1440p": "2k",
+    "1080p": "1080p",
+    "720p": "720p",
+    "480p": "480p"
+}
+
 def download_video():
     url = entry_url.get()
     resolution = resolutions_var.get()
@@ -10,16 +18,16 @@ def download_video():
     try:
         yt = YouTube(url, on_progress_callback=on_progress)
         stream = yt.streams.filter(res=resolution).first()
-        os.path.join("Downloads", f"{yt.title}.mp4")
-        stream.download(output_path="downloads")
+        output_path = os.path.join("downloads", f"{yt.title}.mp4")
+        stream.download(output_path=output_path)
         status.configure(text="Download complete", text_color="white", fg_color="green")
     except Exception as e:
         status.configure(text=f"Error: {str(e)}", text_color="white", fg_color="red")
 
 def on_progress(stream, chunk, remaining):
     total_size = stream.filesize
-    downloadremain = total_size - remaining
-    percentage_completed = downloadremain / total_size * 100
+    download_remain = total_size - remaining
+    percentage_completed = download_remain / total_size * 100
 
     progress.configure(text=str(int(percentage_completed)) + "%")
     progress.update()
@@ -45,18 +53,18 @@ entry_url.pack(pady=("15p"))
 download = ctk.CTkButton(content_frame, text="Download now", command=download_video)
 download.pack(pady=("10p"))
 
-resolutions = ["1080p", "720p", "480p"]
+resolutions = ["2160p", "1440p", "1080p", "720p", "480p"]
 resolutions_var = ctk.StringVar()
-resolutions_combinations = ttk.Combobox(content_frame, values=resolutions, textvariable=resolutions_var)
+resolutions_combinations = ttk.Combobox(content_frame, values=[resolution_labels[res] for res in resolutions], textvariable=resolutions_var)
 resolutions_combinations.pack(pady=("10p"))
-resolutions_combinations.set("720p")
+resolutions_combinations.set("1080p") 
 
 progress = ctk.CTkLabel(content_frame, text="0%")
+progress.pack(pady=("10p"))
 
 progress_bar = ctk.CTkProgressBar(content_frame, width=400)
 progress_bar.set(0.6)
 
 status = ctk.CTkLabel(content_frame, text="Finished")
-
 
 root.mainloop()
